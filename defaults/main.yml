@@ -1,2 +1,19 @@
 ---
-tripleo_overcloud_cirros_url: https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+tripleo_overcloud_image_url: https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+tripleo_overcloud_image_name: cirros
+tripleo_overcloud_public_cidr: 192.168.24.0/24
+tripleo_overcloud_public_allocation_pool:
+   start: 192.168.24.50
+   end: 192.168.24.254
+tripleo_overcloud_public_gateway_ip: 192.168.24.1
+tripleo_overcloud_public_dns_nameservers:
+  - 1.1.1.1
+  - 8.8.8.8
+tripleo_overcloud_private_cidr: 192.168.100.0/24
+tripleo_overcloud_flavor:
+  name: "{{ tripleo_overcloud_image_name }}_flavor"
+  vcpus: 1
+  # GB
+  disk: 1
+  # MB
+  ram: 64

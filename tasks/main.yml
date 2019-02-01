@@ -1,23 +1,22 @@
 ---
-- name: Download the CirrOS image
+- name: Download an image
   get_url:
-    url: "{{ tripleo_overcloud_cirros_url }}"
-    dest: /tmp/cirros.img
+    url: "{{ tripleo_overcloud_image_url }}"
+    dest: "/tmp/{{ tripleo_overcloud_image_name }}.img"
 
-- name: Upload the CirrOS image
+- name: Upload the image to Glance
   os_image:
     name: cirros
     container_format: bare
     disk_format: qcow2
     state: present
-    filename: /tmp/cirros.img
+    filename: "/tmp/{{ tripleo_overcloud_image_name }}.img"
     properties:
       cpu_arch: x86_64
-      distro: ubuntu
 
-- name: Clean up CirrOS image
+- name: Clean up the image from the local file system
   file:
-    path: /tmp/cirros.img
+    path: "/tmp/{{ tripleo_overcloud_image_name }}.img"
     state: absent
 
 - name: Create a public network
@@ -32,13 +31,11 @@
   os_subnet:
     name: public_subnet
     network_name: public_network
-    cidr: 10.0.0.0/24
-    allocation_pool_start: 10.0.0.50
-    allocation_pool_end: 10.0.0.254
-    gateway_ip: 10.0.0.1
-    dns_nameservers:
-      - 1.1.1.1
-      - 8.8.8.8
+    cidr: "{{ tripleo_overcloud_public_cidr }}"
+    allocation_pool_start: "{{ tripleo_overcloud_public_allocation_pool.start }}"
+    allocation_pool_end: "{{ tripleo_overcloud_public_allocation_pool.end }}"
+    gateway_ip: "{{ tripleo_overcloud_public_gateway_ip }}"
+    dns_nameservers: "{{ tripleo_overcloud_public_dns_nameservers }}"
 
 - name: Create a private network
   os_network:
@@ -48,7 +45,7 @@
   os_subnet:
     name: private_subnet
     network_name: private_network
-    cidr: 192.168.100.0/24
+    cidr: "{{ tripleo_overcloud_private_cidr }}"
 
 - name: Create a public router
   os_router:
@@ -83,25 +80,25 @@
     direction: egress
     remote_ip_prefix: 0.0.0.0/0
 
-- name: Create a tiny flavor for CirrOS
+- name: Create a custom flavor
   os_nova_flavor:
-    name: cirros_flavor
-    vcpus: 1
-    disk: 1
-    ram: 64
+    name: "{{ tripleo_overcloud_flavor.name }}"
+    vcpus: "{{ tripleo_overcloud_flavor.vcpus }}"
+    disk: "{{ tripleo_overcloud_flavor.disk }}"
+    ram: "{{ tripleo_overcloud_flavor.ram }}"
 
-- name: Create a CirrOS instance
+- name: Create an instance
   os_server:
-    name: cirros_instance
-    image: cirros
-    flavor: cirros_flavor
+    name: "{{ tripleo_overcloud_image_name }}_instance"
+    image: "{{ tripleo_overcloud_image_name }}"
+    flavor: "{{ tripleo_overcloud_flavor.name }}"
     network: private_network
     security_groups:
       - ssh_and_icmp
 
 - name: Create a floating IP address
   os_floating_ip:
-    server: cirros_instance
+    server: "{{ tripleo_overcloud_image_name }}_instance"
     network: public_network
     nat_destination: private_network
     wait: True
