@@ -1,17 +1,17 @@
 ---
-tripleo_overcloud_image_url: https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
-tripleo_overcloud_image_name: cirros
-tripleo_overcloud_public_cidr: 192.168.24.0/24
-tripleo_overcloud_public_allocation_pool:
+openstack_demo_image_url: https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+openstack_demo_image_name: cirros
+openstack_demo_public_cidr: 192.168.24.0/24
+openstack_demo_public_allocation_pool:
    start: 192.168.24.50
    end: 192.168.24.254
-tripleo_overcloud_public_gateway_ip: 192.168.24.1
-tripleo_overcloud_public_dns_nameservers:
+openstack_demo_public_gateway_ip: 192.168.24.1
+openstack_demo_public_dns_nameservers:
   - 1.1.1.1
   - 8.8.8.8
-tripleo_overcloud_private_cidr: 192.168.100.0/24
-tripleo_overcloud_flavor:
-  name: "{{ tripleo_overcloud_image_name }}_flavor"
+openstack_demo_private_cidr: 192.168.100.0/24
+openstack_demo_flavor:
+  name: "{{ openstack_demo_image_name }}_flavor"
   vcpus: 1
   # GB
   disk: 1

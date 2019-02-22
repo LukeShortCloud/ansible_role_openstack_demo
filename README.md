@@ -1,4 +1,4 @@
-# TripleO Overcloud, Ansible Role
+# OpenStack Demo, Ansible Role
 
 An Ansible role to create demo resources on the Overcloud. These tasks are based on the example usage for setting up a [standalone TripleO containers](https://docs.openstack.org/tripleo-docs/latest/install/containers_deployment/standalone.html) lab environment.
 
@@ -14,9 +14,9 @@ None.
 
 ### Instance Creation
 
-* tripleo_overcloud_image_url
-* tripleo_overcloud_image_name
-* tripleo_overcloud_flavor
+* openstack_demo_image_url
+* openstack_demo_image_name
+* openstack_demo_flavor
     * name
     * vcpus
     * disk
@@ -26,16 +26,16 @@ None.
 
 #### Public
 
-* tripleo_overcloud_public_cidr
-* tripleo_overcloud_public_allocation_pool
+* openstack_demo_public_cidr
+* openstack_demo_public_allocation_pool
     * start
     * end
-* tripleo_overcloud_public_gateway_ip
-* tripleo_overcloud_public_dns_nameservers
+* openstack_demo_public_gateway_ip
+* openstack_demo_public_dns_nameservers
 
 #### Private
 
-* tripleo_overcloud_private_cidr
+* openstack_demo_private_cidr
 
 ## Example Playbook
 
@@ -44,7 +44,7 @@ None.
 - hosts: localhost
   gather_facts: False
   roles:
-    - ansible_role_tripleo_overcloud
+    - ansible_role_openstack_demo
 ```
 
 When the playbook is finished, find the IP address of the instance and then log in via SSH.

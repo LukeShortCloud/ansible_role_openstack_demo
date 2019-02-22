@@ -1,8 +1,8 @@
 ---
 - name: Download an image
   get_url:
-    url: "{{ tripleo_overcloud_image_url }}"
-    dest: "/tmp/{{ tripleo_overcloud_image_name }}.img"
+    url: "{{ openstack_demo_image_url }}"
+    dest: "/tmp/{{ openstack_demo_image_name }}.img"
   tags:
     - glance
 
@@ -12,7 +12,7 @@
     container_format: bare
     disk_format: qcow2
     state: present
-    filename: "/tmp/{{ tripleo_overcloud_image_name }}.img"
+    filename: "/tmp/{{ openstack_demo_image_name }}.img"
     properties:
       cpu_arch: x86_64
   tags:
@@ -20,7 +20,7 @@
 
 - name: Clean up the image from the local file system
   file:
-    path: "/tmp/{{ tripleo_overcloud_image_name }}.img"
+    path: "/tmp/{{ openstack_demo_image_name }}.img"
     state: absent
   tags:
     - glance
@@ -39,11 +39,11 @@
   os_subnet:
     name: public_subnet
     network_name: public_network
-    cidr: "{{ tripleo_overcloud_public_cidr }}"
-    allocation_pool_start: "{{ tripleo_overcloud_public_allocation_pool.start }}"
-    allocation_pool_end: "{{ tripleo_overcloud_public_allocation_pool.end }}"
-    gateway_ip: "{{ tripleo_overcloud_public_gateway_ip }}"
-    dns_nameservers: "{{ tripleo_overcloud_public_dns_nameservers }}"
+    cidr: "{{ openstack_demo_public_cidr }}"
+    allocation_pool_start: "{{ openstack_demo_public_allocation_pool.start }}"
+    allocation_pool_end: "{{ openstack_demo_public_allocation_pool.end }}"
+    gateway_ip: "{{ openstack_demo_public_gateway_ip }}"
+    dns_nameservers: "{{ openstack_demo_public_dns_nameservers }}"
   tags:
     - neutron
 
@@ -57,7 +57,7 @@
   os_subnet:
     name: private_subnet
     network_name: private_network
-    cidr: "{{ tripleo_overcloud_private_cidr }}"
+    cidr: "{{ openstack_demo_private_cidr }}"
   tags:
     - neutron
 
@@ -98,18 +98,18 @@
 
 - name: Create a custom flavor
   os_nova_flavor:
-    name: "{{ tripleo_overcloud_flavor.name }}"
-    vcpus: "{{ tripleo_overcloud_flavor.vcpus }}"
-    disk: "{{ tripleo_overcloud_flavor.disk }}"
-    ram: "{{ tripleo_overcloud_flavor.ram }}"
+    name: "{{ openstack_demo_flavor.name }}"
+    vcpus: "{{ openstack_demo_flavor.vcpus }}"
+    disk: "{{ openstack_demo_flavor.disk }}"
+    ram: "{{ openstack_demo_flavor.ram }}"
   tags:
     - nova
 
 - name: Create an instance
   os_server:
-    name: "{{ tripleo_overcloud_image_name }}_instance"
-    image: "{{ tripleo_overcloud_image_name }}"
-    flavor: "{{ tripleo_overcloud_flavor.name }}"
+    name: "{{ openstack_demo_image_name }}_instance"
+    image: "{{ openstack_demo_image_name }}"
+    flavor: "{{ openstack_demo_flavor.name }}"
     network: private_network
     security_groups:
       - ssh_and_icmp
@@ -118,7 +118,7 @@
 
 - name: Create a floating IP address
   os_floating_ip:
-    server: "{{ tripleo_overcloud_image_name }}_instance"
+    server: "{{ openstack_demo_image_name }}_instance"
     network: public_network
     nat_destination: private_network
     wait: True
