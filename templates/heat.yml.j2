@@ -1,0 +1,125 @@
+---
+heat_template_version: newton
+
+# https://docs.openstack.org/heat/latest/template_guide/openstack.html
+resources:
+  glance_image:
+    type: OS::Glance::WebImage
+    properties:
+      container_format: bare
+      disk_format: qcow2
+      name: {{ openstack_demo_image_name }}
+      location: {{ openstack_demo_image_url }}
+
+  public_network:
+    type: OS::Neutron::ProviderNet
+    properties:
+      name: public_network
+      network_type: flat
+      physical_network: datacentre
+      router_external: True
+      shared: True
+
+  public_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+{% raw %}
+      network: { get_resource: public_network }
+{% endraw %}
+      cidr: {{ openstack_demo_public_cidr }}
+      gateway_ip: {{ openstack_demo_public_gateway_ip }}
+      allocation_pools:
+        - start: {{ openstack_demo_public_allocation_pool.start }}
+        - end: {{ openstack_demo_public_allocation_pool.end }}
+      dns_nameservers:
+{% for item in openstack_demo_public_dns_nameservers %}
+        - {{ item }}
+{% endfor %}
+
+  private_network:
+    type: OS::Neutron::Net
+
+  internal_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+{% raw %}
+      network: { get_resource: private_network }
+{% endraw %}
+      cidr: {{ openstack_demo_private_cidr }}
+      dns_nameservers:
+{% for item in openstack_demo_public_dns_nameservers %}
+        - {{ item }}
+{% endfor %}
+
+  create_sec_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: ssh_and_icmp
+
+  create_sec_group_rule_ssh:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      port_range_max: 22
+      port_range_min: 22
+      protocol: tcp
+      security_group: ssh_and_icmp
+
+  create_sec_group_rule_icmp:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      remote_ip_prefix: 0.0.0.0/0
+      protocol: icmp
+      security_group: ssh_and_icmp
+
+  subnet_port:
+    type: OS::Neutron::Port
+    properties:
+{% raw %}
+      network: { get_resource: private_network }
+      fixed_ips:
+        - subnet_id: { get_resource: internal_subnet }
+      security_groups:
+        - ssh_and_icmp
+
+  external_router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info:
+        network: ext-net
+
+  external_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router: { get_resource: external_router }
+      subnet: { get_resource: internal_subnet }
+{% endraw %}
+
+  create_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      name: {{ openstack_demo_flavor.name }}
+      vcpus: {{ openstack_demo_flavor.vcpus }}
+      ram: {{ openstack_demo_flavor.ram }}
+      disk: {{ openstack_demo_flavor.disk }}
+
+  instance_creation:
+    type: OS::Nova::Server
+    properties:
+      name: {{ openstack_demo_image_name }}_instance
+      flavor: {{ openstack_demo_flavor.name }}
+      image: {{ openstack_demo_image_name }}
+      networks:
+{% raw %}
+        - port: { get_resource: subnet_port }
+
+  floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: public_network
+
+  floating_ip_association:
+    type: OS::Nova::FloatingIPAssociation
+    properties:
+      floating_ip: { get_resource: floating_ip }
+      server_id: { get_resource: instance_creation }
+{% endraw %}

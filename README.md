@@ -1,16 +1,19 @@
 # OpenStack Demo, Ansible Role
 
-An Ansible role to create demo resources on the Overcloud. These tasks are based on the example usage for setting up a [standalone TripleO containers](https://docs.openstack.org/tripleo-docs/latest/install/containers_deployment/standalone.html) lab environment.
+An Ansible role to create demo resources on the Overcloud. These tasks are based on the example usage for setting up project resources after deploying a [standalone TripleO containers](https://docs.openstack.org/tripleo-docs/latest/install/containers_deployment/standalone.html) lab environment. This role requires the use of an `admin` account on the Overcloud to create and manage the public network.
 
 ## Requirements
 
-None.
+* Ansible >= 2.6
+* openstacksdk
 
 ## Dependencies
 
 None.
 
 ## Role Variables
+
+* openstack_demo_method = Create the demo resources using `ansible` or `heat`. Default: `ansible`.
 
 ### Instance Creation
 

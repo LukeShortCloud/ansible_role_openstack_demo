@@ -1,0 +1,11 @@
+---
+- name: Render the Heat template
+  template:
+    src: heat.yml.j2
+    dest: /tmp/heat.yml
+
+- name: Create the demo Heat stack
+  os_stack:
+    name: openstack_demo
+    state: present
+    template: /tmp/heat.yml
